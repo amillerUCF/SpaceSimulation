@@ -12,22 +12,22 @@ using UnityEngine;
 
 public class SpaceshipController : MonoBehaviour {
 
-    public float powerCap;              // Cap of overall forward/backward thruster power
-    public float rateOfPowerChange;     // Rate that power increases/decreases
-    private float magnitudeOfDirection; // This is the power for the current direction that we are traveling (e.g. Shift (+) and Ctrl (-)).
-                                        // Throttle up and down
+    private float powerCap = 100;           // Cap of overall forward/backward thruster power
+    private float rateOfPowerChange = 0.5f; // Rate that power increases/decreases
+    private float magnitudeOfDirection;     // This is the power for the current direction that we are traveling (e.g. Shift (+) and Ctrl (-)).
+                                            // Throttle up and down
 
-    public float rollSpeed;             // Roll
-    public float pitchSpeed;            // Pitch
-    public float yawSpeed;              // Yaw
+    private float rollSpeed = 0.5f;         // Roll
+    private float pitchSpeed = 0.5f;        // Pitch
+    private float yawSpeed = 0.25f;         // Yaw
 
-    public float speed;                 // Overall speed of the ship
+    private float speed = 0.05f;            // Overall speed of the ship
 
     /* Temporary Vector Variables */
-    Vector3 movementVector = new Vector3(0.0f, 0.0f, 0.0f);
-    Vector3 rollVector = new Vector3(0.0f, 0.0f, 0.0f);
-    Vector3 pitchVector = new Vector3(0.0f, 0.0f, 0.0f);
-    Vector3 yawVector = new Vector3(0.0f, 0.0f, 0.0f);
+    protected Vector3 movementVector = new Vector3(0.0f, 0.0f, 0.0f);
+    protected Vector3 rollVector = new Vector3(0.0f, 0.0f, 0.0f);
+    protected Vector3 pitchVector = new Vector3(0.0f, 0.0f, 0.0f);
+    protected Vector3 yawVector = new Vector3(0.0f, 0.0f, 0.0f);
 
     // Use this for initialization
     void Start () {
