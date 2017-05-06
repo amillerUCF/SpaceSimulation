@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System;
 using UnityEngine;
 
 /** Controls and Physics for Spaceship:
@@ -12,33 +11,37 @@ using UnityEngine;
 
 public class SpaceshipController : MonoBehaviour {
 
+    /** Private Variables */
     private float powerCap = 100;           // Cap of overall forward/backward thruster power
     private float rateOfPowerChange = 0.5f; // Rate that power increases/decreases
-    private float magnitudeOfDirection;     // This is the power for the current direction that we are traveling (e.g. Shift (+) and Ctrl (-)).
+    private float lowPowerThreshold = 25;   // The lower the power, the lower the throttle increase rate
+    private float highPowerThreshold = 50;
+    private float currentPower;             // This is the power for the current direction that we are traveling (e.g. Shift (+) and Ctrl (-)).
                                             // Throttle up and down
 
-    private float rollSpeed = 0.5f;         // Roll
-    private float pitchSpeed = 0.5f;        // Pitch
+    private float rollSpeed = 1.0f; // Roll
+    private float pitchSpeed = 1.0f; // Pitch
     private float yawSpeed = 0.25f;         // Yaw
-
+    private float slowdownInterval = 10.0f;  // Interval of powerCap where ship adjusts to reaching max speed or stopping
     private float speed = 0.05f;            // Overall speed of the ship
 
-    /* Temporary Vector Variables */
+    /** Temporary Vector Variables */
     protected Vector3 movementVector = new Vector3(0.0f, 0.0f, 0.0f);
     protected Vector3 rollVector = new Vector3(0.0f, 0.0f, 0.0f);
     protected Vector3 pitchVector = new Vector3(0.0f, 0.0f, 0.0f);
     protected Vector3 yawVector = new Vector3(0.0f, 0.0f, 0.0f);
 
+
     // Use this for initialization
     void Start () {
-        magnitudeOfDirection = 0.0f;
+        currentPower = 0.0f;
 	}
 	
 	// Update is called once per frame
 	void Update () {
 
         // Update forward/backward movement
-        movementVector.x = speed * magnitudeOfDirection;
+        movementVector.x = speed * currentPower;
         transform.Translate(movementVector);
 
         // Rotate on roll
@@ -51,7 +54,7 @@ public class SpaceshipController : MonoBehaviour {
         transform.Rotate(yawVector);
 
 
-        /* Update roll vector */
+        /* Update roll vector and roll speed */
         // If positive roll
         if (Input.GetKey(KeyCode.A))
             rollVector.x = rollSpeed;
@@ -63,7 +66,13 @@ public class SpaceshipController : MonoBehaviour {
             rollVector.x = 0.0f;
 
 
-        /* Update pitch vector */
+        /* Update pitch vector and pitch speed */
+        if (Math.Abs(currentPower) < slowdownInterval ||
+            Math.Abs(currentPower) > (powerCap - slowdownInterval))
+            pitchSpeed = 0.5f; // Half pitch speed
+        else
+            pitchSpeed = 1.0f;
+
         // If positive pitch
         if (Input.GetKey(KeyCode.S))
             pitchVector.z = pitchSpeed;
@@ -91,18 +100,28 @@ public class SpaceshipController : MonoBehaviour {
         if (Input.GetKey(KeyCode.LeftShift))
         {
             // If magnitude of power is not capped out
-            if (magnitudeOfDirection < powerCap)
-                magnitudeOfDirection += rateOfPowerChange; // Increase power
-            print("Power: " + magnitudeOfDirection);
+            if (currentPower < powerCap)
+            {
+                if (currentPower < lowPowerThreshold)
+                    currentPower += rateOfPowerChange * 0.5f;
+                else
+                    currentPower += rateOfPowerChange; // Increase power
+            }
+            print("Power: " + currentPower);
         }
 
         /* Decrease thruster power when "LeftCtrl" is held */
         if (Input.GetKey(KeyCode.LeftControl))
         {
             // If magnitude of power is not capped out
-            if (magnitudeOfDirection > -powerCap)
-                magnitudeOfDirection -= rateOfPowerChange; // Decrease power
-            print("Power: " + magnitudeOfDirection);
+            if (currentPower > -powerCap)
+            {
+                if (currentPower > -lowPowerThreshold)
+                    currentPower -= rateOfPowerChange * 0.5f;
+                else
+                    currentPower -= rateOfPowerChange; // Decrease power
+            }
+            print("Power: " + currentPower);
         }
 
     }
