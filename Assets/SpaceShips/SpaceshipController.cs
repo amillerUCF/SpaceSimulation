@@ -6,7 +6,7 @@ using UnityEngine;
  *  
  *  'Shift' and 'Ctrl' - Forwards and backwards respectively
  *  'A' and 'D' - Roll left and right respectively
- *  'W' and 'S' - Pitch up and down respectively
+ *  'W' and 'S' - Pitch down and up respectively
  *  Mouse = Yaw left and right respectively
  */
 
@@ -23,9 +23,11 @@ public class SpaceshipController : MonoBehaviour {
 
     public float speed;                 // Overall speed of the ship
 
-    /* Temporary Variables */
+    /* Temporary Vector Variables */
     Vector3 movementVector = new Vector3(0.0f, 0.0f, 0.0f);
     Vector3 rollVector = new Vector3(0.0f, 0.0f, 0.0f);
+    Vector3 pitchVector = new Vector3(0.0f, 0.0f, 0.0f);
+    Vector3 yawVector = new Vector3(0.0f, 0.0f, 0.0f);
 
     // Use this for initialization
     void Start () {
@@ -39,20 +41,50 @@ public class SpaceshipController : MonoBehaviour {
         movementVector.x = speed * magnitudeOfDirection;
         transform.Translate(movementVector);
 
+        // Rotate on roll
+        transform.Rotate(rollVector);
 
-        /* Update roll movement */
+        // Rotate on pitch
+        transform.Rotate(pitchVector);
+
+        // Rotate on yaw
+        transform.Rotate(yawVector);
+
+
+        /* Update roll vector */
         // If positive roll
         if (Input.GetKey(KeyCode.A))
             rollVector.x = rollSpeed;
-
         // If negative roll
         else if (Input.GetKey(KeyCode.D))
             rollVector.x = -rollSpeed;
-
+        // Otherwise, reset
         else
             rollVector.x = 0.0f;
 
-        transform.Rotate(rollVector); // Update roll
+
+        /* Update pitch vector */
+        // If positive pitch
+        if (Input.GetKey(KeyCode.S))
+            pitchVector.z = pitchSpeed;
+        // If negative pitch
+        else if (Input.GetKey(KeyCode.W))
+            pitchVector.z = -pitchSpeed;
+        // Otherwise, reset
+        else
+            pitchVector.z = 0.0f;
+
+
+        /* Update yaw vector */
+        // If positive yaw (left)
+        if (Input.GetAxis("Mouse X") < 0)
+            yawVector.y = -yawSpeed;
+        // If negative yaw (right)
+        else if (Input.GetAxis("Mouse X") > 0)
+            yawVector.y = yawSpeed;
+        // Otherwise, reset
+        else
+            yawVector.y = 0.0f;
 
 
         /* Increase thruster power when "LeftShift" is held */
